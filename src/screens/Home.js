@@ -34,7 +34,6 @@ const Home = () => {
     client
       .fetch(mainCollectionsQuery)
       .then((result) => {
-        console.log(result);
         setCollections(result);
       })
       .finally(() => setLoading(false));
@@ -48,6 +47,7 @@ const Home = () => {
     <ScrollView
       style={styles.homeContainer}
       showsVerticalScrollIndicator={false}
+      overScrollMode="never"
     >
       <Box style={styles.homeHeader}>
         <HStack space={1}>
@@ -106,8 +106,6 @@ const Home = () => {
             orientation={"horizontal"}
           />
         )}
-
-        {/* <FeaturedRow /> */}
       </Box>
     </ScrollView>
   );

@@ -16,7 +16,6 @@ const CuisineTypes = () => {
     client
       .fetch(foodCategoriesCollectionsQuery)
       .then((result) => {
-        console.log(result);
         setCuisineTypes(result);
       })
       .finally(() => setLoading(false));
@@ -64,7 +63,6 @@ const CuisineTypes = () => {
       showsHorizontalScrollIndicator={false}
       data={!loading && cuisineTypes ? cuisineTypes : new Array(10)}
       renderItem={loading ? renderSkeleton : renderItem}
-      estimatedItemSize={cuisineTypes?.length || 15}
       overScrollMode="never"
     />
   );

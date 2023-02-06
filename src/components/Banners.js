@@ -26,7 +26,6 @@ const Banners = () => {
     client
       .fetch(bannersQuery)
       .then((result) => {
-        console.log(result);
         setBanners(result);
       })
       .finally(() => setLoading(false));

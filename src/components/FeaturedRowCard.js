@@ -4,10 +4,18 @@ import colors from "../constants/colors";
 import { Box, Heading, Icon, Image, Pressable, VStack } from "native-base";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { remarks } from "../constants/general";
+import { useNavigation } from "@react-navigation/native";
+import { BRAND } from "../constants/routeNames";
 
 const FeaturedRowCard = ({ item }) => {
+  const { navigate } = useNavigation();
+
   return (
-    <Pressable android_ripple={{ color: "" }} style={styles.card}>
+    <Pressable
+      android_ripple={{ color: "" }}
+      style={styles.card}
+      onPress={() => navigate(BRAND, { item })}
+    >
       <Box flex={0.7}>
         <Image
           source={{ uri: item.imageUrl }}

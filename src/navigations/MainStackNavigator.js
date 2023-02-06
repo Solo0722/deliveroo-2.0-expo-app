@@ -5,6 +5,7 @@ import {
   createStackNavigator,
 } from "@react-navigation/stack";
 import {
+  BRAND,
   FILTEROPTIONS,
   GOOGLEAUTH,
   HOME,
@@ -32,6 +33,7 @@ import BackButton from "../components/BackButton";
 import LocationPicker from "../screens/LocationPicker";
 import MainSearch from "../screens/MainSearch";
 import FilterOptions from "../screens/FilterOptions";
+import Brand from "../screens/Brand";
 
 const MainStack = createStackNavigator();
 
@@ -139,7 +141,10 @@ const MainStackNavigator = ({ navigation }) => {
                           fontWeight="hairline"
                           size={"xs"}
                           color={"primary.500"}
-                          onPress={() => navigate(LOCATIONPICKER)}
+                          onPress={() => {
+                            onClose();
+                            navigate(LOCATIONPICKER);
+                          }}
                         >
                           Change
                         </Heading>
@@ -183,6 +188,18 @@ const MainStackNavigator = ({ navigation }) => {
         }}
       />
       <MainStack.Screen
+        name={BRAND}
+        component={Brand}
+        options={{
+          headerTransparent: true,
+          headerTitle: "",
+          headerLeft: () => <BackButton />,
+          headerLeftContainerStyle: {
+            paddingLeft: 10,
+          },
+        }}
+      />
+      <MainStack.Screen
         name={GOOGLEAUTH}
         component={GoogleAuth}
         options={{
@@ -211,6 +228,9 @@ const MainStackNavigator = ({ navigation }) => {
               }}
             />
           ),
+          headerLeftContainerStyle: {
+            paddingLeft: 10,
+          },
           headerRight: () => (
             <IconButton
               icon={
@@ -250,6 +270,9 @@ const MainStackNavigator = ({ navigation }) => {
               }}
             />
           ),
+          headerLeftContainerStyle: {
+            paddingLeft: 10,
+          },
         }}
       />
       <MainStack.Screen
@@ -270,6 +293,9 @@ const MainStackNavigator = ({ navigation }) => {
               }}
             />
           ),
+          headerLeftContainerStyle: {
+            paddingLeft: 10,
+          },
         }}
       />
     </MainStack.Navigator>
