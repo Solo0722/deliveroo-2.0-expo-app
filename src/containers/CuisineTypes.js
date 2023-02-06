@@ -1,29 +1,58 @@
 import { StyleSheet } from "react-native";
-import React from "react";
-import { cuisineTypes } from "../constants/general";
+import React, { useEffect, useState } from "react";
 import { Box, FlatList, Heading, Image, Pressable, View } from "native-base";
 import { FlashList } from "@shopify/flash-list";
 import colors from "../constants/colors";
+import FoodCategorySkeleton from "../components/FoodCategorySkeleton";
+import { client } from "../helpers/sanity/sanityClient";
+import { foodCategoriesCollectionsQuery } from "../helpers/sanity/sanityQueries";
 
 const CuisineTypes = () => {
+  const [cuisineTypes, setCuisineTypes] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchCuisineTypes = () => {
+    setLoading(true);
+    client
+      .fetch(foodCategoriesCollectionsQuery)
+      .then((result) => {
+        console.log(result);
+        setCuisineTypes(result);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchCuisineTypes();
+  }, []);
+
   const renderItem = ({ item }) => (
     <Pressable android_ripple={{ color: "" }} style={styles.cuisineCard}>
       <Box height={"75%"}>
         <Image
-          source={require("../assets/images/img.jpg")}
+          source={{ uri: item && item.imageUrl }}
           alt="bgimg"
           width="100%"
           height="100%"
           borderRadius={2}
+          resizeMode="cover"
+          resizeMethod="auto"
         />
       </Box>
       <Box height={"25%"} alignItems="flex-start" px={2} pt={1}>
-        <Heading fontWeight={"hairline"} size={"xs"} fontSize={10}>
-          {item.slice(0, 1).toUpperCase() + item.slice(1)}
+        <Heading
+          fontWeight={"hairline"}
+          size={"xs"}
+          fontSize={10}
+          textTransform={"capitalize"}
+        >
+          {item && item.title}
         </Heading>
       </Box>
     </Pressable>
   );
+
+  const renderSkeleton = () => <FoodCategorySkeleton />;
 
   return (
     <FlatList
@@ -33,9 +62,9 @@ const CuisineTypes = () => {
       ItemSeparatorComponent={<View mx={7.5} />}
       horizontal
       showsHorizontalScrollIndicator={false}
-      data={cuisineTypes}
-      renderItem={renderItem}
-      estimatedItemSize={15}
+      data={!loading && cuisineTypes ? cuisineTypes : new Array(10)}
+      renderItem={loading ? renderSkeleton : renderItem}
+      estimatedItemSize={cuisineTypes?.length || 15}
       overScrollMode="never"
     />
   );

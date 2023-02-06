@@ -1,5 +1,5 @@
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import { StyleSheet, Text } from "react-native";
+import React, { useEffect, useState } from "react";
 import { globalStyles } from "../constants/globalStyles";
 import {
   Actionsheet,
@@ -8,6 +8,8 @@ import {
   Icon,
   IconButton,
   useDisclose,
+  ScrollView,
+  View,
 } from "native-base";
 import colors from "../constants/colors";
 import Searchbar from "../components/Searchbar";
@@ -16,13 +18,37 @@ import { FILTEROPTIONS } from "../constants/routeNames";
 import { useNavigation } from "@react-navigation/native";
 import CuisineTypes from "../containers/CuisineTypes";
 import FeaturedRow from "../containers/FeaturedRow";
-import Banner from "../components/Banner";
+import Banners from "../components/Banners";
+import { client } from "../helpers/sanity/sanityClient";
+import { mainCollectionsQuery } from "../helpers/sanity/sanityQueries";
+import BannerSkeleton from "../components/BannerSkeleton";
+import CardSkeleton from "../components/CardSkeleton";
 
 const Home = () => {
   const { navigate } = useNavigation();
+  const [collections, setCollections] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchMainCollections = () => {
+    setLoading(true);
+    client
+      .fetch(mainCollectionsQuery)
+      .then((result) => {
+        console.log(result);
+        setCollections(result);
+      })
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchMainCollections();
+  }, []);
 
   return (
-    <ScrollView style={styles.homeContainer}>
+    <ScrollView
+      style={styles.homeContainer}
+      showsVerticalScrollIndicator={false}
+    >
       <Box style={styles.homeHeader}>
         <HStack space={1}>
           <Searchbar />
@@ -48,24 +74,39 @@ const Home = () => {
       </Box>
       <Box style={styles.homeBody}>
         <CuisineTypes />
-        <Banner />
-        <FeaturedRow
-          data={new Array(5)}
-          heading={"Top picks near you"}
-          orientation={"horizontal"}
-        />
-        <FeaturedRow
-          data={new Array(5)}
-          heading={"Most favorite places"}
-          orientation={"horizontal"}
-          subHeading={"Selected places specially for you"}
-        />
-        <FeaturedRow
-          data={new Array(5)}
-          heading={"Most favorite places"}
-          orientation={"horizontal"}
-          subHeading={"Selected places specially for you"}
-        />
+        <Banners />
+        {loading ? (
+          <CardSkeleton orientation={"horizontal"} />
+        ) : (
+          <FeaturedRow
+            data={collections ? collections[0].brands : []}
+            heading={collections ? collections[0]?.title : null}
+            subHeading={collections ? collections[0]?.subTitle : null}
+            orientation={"horizontal"}
+          />
+        )}
+
+        {loading ? (
+          <CardSkeleton orientation={"horizontal"} />
+        ) : (
+          <FeaturedRow
+            data={collections ? collections[1]?.brands : []}
+            heading={collections ? collections[1]?.title : null}
+            subHeading={collections ? collections[1]?.subTitle : null}
+            orientation={"horizontal"}
+          />
+        )}
+        {loading ? (
+          <CardSkeleton orientation={"horizontal"} />
+        ) : (
+          <FeaturedRow
+            data={collections ? collections[2]?.brands : []}
+            heading={collections ? collections[2]?.title : null}
+            subHeading={collections ? collections[2]?.subTitle : null}
+            orientation={"horizontal"}
+          />
+        )}
+
         {/* <FeaturedRow /> */}
       </Box>
     </ScrollView>

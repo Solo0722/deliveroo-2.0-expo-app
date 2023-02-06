@@ -3,23 +3,26 @@ import React from "react";
 import colors from "../constants/colors";
 import { Box, Heading, Icon, Image, Pressable, VStack } from "native-base";
 import { Ionicons, Entypo } from "@expo/vector-icons";
+import { remarks } from "../constants/general";
 
-const FeaturedRowCard = () => {
+const FeaturedRowCard = ({ item }) => {
   return (
     <Pressable android_ripple={{ color: "" }} style={styles.card}>
       <Box flex={0.7}>
         <Image
-          source={require("../assets/images/img.jpg")}
+          source={{ uri: item.imageUrl }}
           width={"100%"}
           height={"100%"}
           alt="imgBg"
+          resizeMode="cover"
+          resizeMethod="auto"
           borderTopRadius={2}
         />
       </Box>
       <Box flex={0.3} p={2} justifyContent={"center"}>
         <VStack space={2}>
-          <Heading fontWeight={"bold"} size={"sm"}>
-            PIZZA EXPRESS
+          <Heading fontWeight={"bold"} size={"sm"} textTransform={"capitalize"}>
+            {item.name}
           </Heading>
           <Heading
             fontWeight={"hairline"}
@@ -33,7 +36,7 @@ const FeaturedRowCard = () => {
               color="primary.500"
               size={"xs"}
             />{" "}
-            4.5 Very Good (367)
+            {item.rating} {remarks(item.rating)} (367)
           </Heading>
           <Heading
             fontWeight={"hairline"}
@@ -42,13 +45,13 @@ const FeaturedRowCard = () => {
             fontSize={13}
             pt={0.5}
           >
-            0.0 miles away{" "}
+            0.4 miles away{" "}
             <Icon
               as={<Entypo name="dot-single" />}
               // color="cool.500"
               size={"xs"}
             />{" "}
-            $0.49 delivery
+            ${item.deliveryFee} delivery
           </Heading>
         </VStack>
       </Box>
@@ -65,7 +68,7 @@ const FeaturedRowCard = () => {
       >
         <VStack>
           <Heading fontWeight={"hairline"} size={"xs"} textAlign="center">
-            10 - 20
+            {item.deliveryTime}
           </Heading>
           <Heading
             textAlign="center"

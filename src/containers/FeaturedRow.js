@@ -9,14 +9,17 @@ import {
   VStack,
 } from "native-base";
 import FeaturedRowCard from "../components/FeaturedRowCard";
+import CardSkeleton from "../components/CardSkeleton";
 
 const FeaturedRow = ({ orientation, heading, subHeading, data }) => {
   return (
     <>
       <VStack space={2} mt={8} mb={4} px={15}>
-        <Heading fontWeight={"bold"} size={"sm"}>
-          {heading}
-        </Heading>
+        {heading && (
+          <Heading fontWeight={"bold"} size={"sm"}>
+            {heading}
+          </Heading>
+        )}
         {subHeading && (
           <Heading fontWeight={"hairline"} size={"xs"} color={"coolGray.500"}>
             {subHeading}
@@ -24,7 +27,6 @@ const FeaturedRow = ({ orientation, heading, subHeading, data }) => {
         )}
       </VStack>
       <FlatList
-        style={{ height: 300 }}
         ListHeaderComponent={
           <View
             pl={orientation == "vertical" ? 0 : 15}
