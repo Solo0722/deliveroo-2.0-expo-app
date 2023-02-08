@@ -5,7 +5,7 @@ import { HStack, Skeleton, VStack } from "native-base";
 const BannerSkeleton = () => {
   return (
     <HStack w="100%" height={260} space={8} rounded="md" p="4">
-      <Skeleton flex="1" h="150" rounded="md" />
+      <Skeleton flex="1" h="160" rounded="md" />
       <VStack flex="3" space="4">
         <Skeleton />
         <Skeleton.Text />

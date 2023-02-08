@@ -16,6 +16,7 @@ import { client } from "../helpers/sanity/sanityClient";
 import BannerSkeleton from "./BannerSkeleton";
 import colors from "../constants/colors";
 import { useEffect } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Banners = () => {
   const [banners, setBanners] = useState(null);
@@ -25,18 +26,30 @@ const Banners = () => {
     setLoading(true);
     client
       .fetch(bannersQuery)
-      .then((result) => {
+      .then(async (result) => {
         setBanners(result);
+        await AsyncStorage.setItem("banners", JSON.stringify(result));
       })
       .finally(() => setLoading(false));
   };
 
+  const getBannersFromStorage = async () => {
+    setLoading(true);
+    const jsonData = await AsyncStorage.getItem("banners");
+    const data = jsonData === null ? null : JSON.parse(jsonData);
+    setBanners(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchBanners();
+    getBannersFromStorage();
+    if (banners === null) {
+      fetchBanners();
+    }
   }, []);
 
   const renderItem = ({ item }) => (
-    <Pressable android_ripple={{ color: "" }} style={styles.card}>
+    <Pressable android_ripple={{ color: "#e5e7eb" }} style={styles.card}>
       <Image
         source={{ uri: item && item.imageUrl }}
         width={"100%"}

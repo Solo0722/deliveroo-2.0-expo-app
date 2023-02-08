@@ -13,7 +13,15 @@ export const mainCollectionsQuery = `*[_type == 'collection' && !isFoodCategory]
         rating,
         deliveryFee,
         deliveryTime,
-        imageUrl
+        imageUrl,
+         products[] -> {
+            _id,
+            name,
+            description,
+            rating,
+            price,
+            imageUrl
+        }
         
         
     }
@@ -29,7 +37,15 @@ export const foodCategoriesCollectionsQuery = `*[_type == 'collection' && isFood
         rating,
         deliveryFee,
         deliveryTime,
-        imageUrl
+        imageUrl,
+        products[] -> {
+            _id,
+            name,
+            description,
+            rating,
+            price,
+            imageUrl
+        }
         
         
     }

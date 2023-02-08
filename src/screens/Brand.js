@@ -21,11 +21,10 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { Animated } from "react-native";
 import { useRef } from "react";
+import { PRODUCT } from "../constants/routeNames";
 
 const Brand = ({ navigation, route }) => {
-  const { item } = route.params;
-  console.log(item);
-
+  const { brand } = route.params;
   const yOffset = useRef(new Animated.Value(0)).current;
   const headerOpacity = yOffset.interpolate({
     inputRange: [0, 200],
@@ -38,7 +37,7 @@ const Brand = ({ navigation, route }) => {
       headerStyle: {
         opacity: headerOpacity,
       },
-      headerTitle: item.name,
+      headerTitle: brand.name,
       headerTitleStyle: {
         fontSize: 16,
         fontFamily: "inter-semibold",
@@ -61,11 +60,17 @@ const Brand = ({ navigation, route }) => {
   }, [headerOpacity, navigation]);
 
   const renderItem = ({ item }) => (
-    <Pressable px={4} py={4} android_ripple={{ color: "" }} style={styles.card}>
+    <Pressable
+      px={4}
+      py={4}
+      android_ripple={{ color: "#e5e7eb" }}
+      style={styles.card}
+      onPress={() => navigation.navigate(PRODUCT, { product: item })}
+    >
       <HStack space={2} width={"100%"}>
         <VStack space={2} width={"68%"}>
           <Heading fontWeight={"bold"} size={"sm"}>
-            Royale Cheese
+            {item.name}
           </Heading>
           <Heading
             color={"coolGray.500"}
@@ -74,8 +79,7 @@ const Brand = ({ navigation, route }) => {
             noOfLines={2}
             fontSize={13}
           >
-            American, Italian, Halal, Vegan friendly, Mexican, Asian,Hispano,
-            Latino, Spanish
+            {item.description}
           </Heading>
           <Heading
             fontWeight={"hairline"}
@@ -84,16 +88,18 @@ const Brand = ({ navigation, route }) => {
             mb={2}
             fontSize={13}
           >
-            $7.59
+            ${item.price}
           </Heading>
         </VStack>
         <Box width={"30%"} height={"100%"}>
           <Image
-            source={require("../assets/images/img.jpg")}
+            source={{ uri: item.imageUrl }}
             alt="img"
             width={"100%"}
             height={"100%"}
             borderRadius={2}
+            resizeMethod="auto"
+            resizeMode="cover"
           />
         </Box>
       </HStack>
@@ -122,7 +128,7 @@ const Brand = ({ navigation, route }) => {
         ListHeaderComponent={
           <>
             <Image
-              source={{ uri: item.imageUrl }}
+              source={{ uri: brand.imageUrl }}
               alt="img"
               width={"100%"}
               height={200}
@@ -131,7 +137,7 @@ const Brand = ({ navigation, route }) => {
             />
             <Box my={2} mx={4}>
               <Heading fontWeight={"extrabold"} size={"lg"} mb={2}>
-                {item.name}
+                {brand.name}
               </Heading>
               <Heading
                 fontWeight={"hairline"}
@@ -141,7 +147,7 @@ const Brand = ({ navigation, route }) => {
                 mb={2}
                 noOfLines={1}
               >
-                {item.description}
+                {brand.description}
               </Heading>
               <Heading
                 fontWeight={"hairline"}
@@ -156,7 +162,7 @@ const Brand = ({ navigation, route }) => {
                   color="primary.500"
                   size={"xs"}
                 />{" "}
-                {item.rating} {remarks(item.rating)} (500+)
+                {brand.rating} {remarks(brand.rating)} (500+)
                 <Icon
                   as={<Entypo name="dot-single" />}
                   // color="cool.500"
@@ -169,7 +175,7 @@ const Brand = ({ navigation, route }) => {
                   pt={0.5}
                   mb={2}
                 >
-                  {item.deliveryTime} min{" "}
+                  {brand.deliveryTime} min{" "}
                 </Heading>
                 <Icon
                   as={<Entypo name="dot-single" />}
@@ -194,7 +200,7 @@ const Brand = ({ navigation, route }) => {
               >
                 0.4 miles away{" "}
                 <Icon as={<Entypo name="dot-single" />} size={"xs"} /> $
-                {item.deliveryFee} delivery fee
+                {brand.deliveryFee} delivery fee
               </Heading>
             </Box>
             <Box
@@ -274,7 +280,7 @@ const Brand = ({ navigation, route }) => {
         }
         ListFooterComponent={<View pb={15} />}
         ItemSeparatorComponent={<View my={1} />}
-        data={new Array(10)}
+        data={brand.products || []}
         renderItem={renderItem}
       />
     </Box>

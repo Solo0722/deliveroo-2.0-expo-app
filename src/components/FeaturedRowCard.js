@@ -12,9 +12,9 @@ const FeaturedRowCard = ({ item }) => {
 
   return (
     <Pressable
-      android_ripple={{ color: "" }}
+      android_ripple={{ color: "#e5e7eb" }}
       style={styles.card}
-      onPress={() => navigate(BRAND, { item })}
+      onPress={() => navigate(BRAND, { brand: item })}
     >
       <Box flex={0.7}>
         <Image

@@ -6,11 +6,14 @@ import {
 } from "@react-navigation/stack";
 import {
   BRAND,
+  CART,
+  CHECKOUT,
   FILTEROPTIONS,
   GOOGLEAUTH,
   HOME,
   LOCATIONPICKER,
   MAINSEARCH,
+  PRODUCT,
 } from "../constants/routeNames";
 import Home from "../screens/Home";
 import colors from "../constants/colors";
@@ -34,6 +37,9 @@ import LocationPicker from "../screens/LocationPicker";
 import MainSearch from "../screens/MainSearch";
 import FilterOptions from "../screens/FilterOptions";
 import Brand from "../screens/Brand";
+import Product from "../screens/Product";
+import Cart from "../screens/Cart";
+import Checkout from "../screens/Checkout";
 
 const MainStack = createStackNavigator();
 
@@ -111,7 +117,7 @@ const MainStackNavigator = ({ navigation }) => {
                   variant={"subtle"}
                   colorScheme="coolGray"
                   // backgroundColor={"coolGray.100"}
-                  onPress={() => navigate(GOOGLEAUTH)}
+                  onPress={() => navigate(CHECKOUT)}
                 />
               </HStack>
               <Actionsheet isOpen={isOpen} onClose={onClose} borderRadius={0}>
@@ -187,12 +193,18 @@ const MainStackNavigator = ({ navigation }) => {
           ),
         }}
       />
+      <MainStack.Screen name={BRAND} component={Brand} />
+      <MainStack.Screen name={PRODUCT} component={Product} />
+      <MainStack.Screen name={CART} component={Cart} />
       <MainStack.Screen
-        name={BRAND}
-        component={Brand}
+        name={CHECKOUT}
+        component={Checkout}
         options={{
-          headerTransparent: true,
-          headerTitle: "",
+          headerTitle: "Checkout",
+          headerTitleStyle: {
+            fontSize: 16,
+            fontFamily: "inter-semibold",
+          },
           headerLeft: () => <BackButton />,
           headerLeftContainerStyle: {
             paddingLeft: 10,

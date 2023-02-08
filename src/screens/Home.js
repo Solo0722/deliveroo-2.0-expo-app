@@ -1,4 +1,4 @@
-import { StyleSheet, Text } from "react-native";
+import { RefreshControl, StyleSheet, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { globalStyles } from "../constants/globalStyles";
 import {
@@ -23,24 +23,40 @@ import { client } from "../helpers/sanity/sanityClient";
 import { mainCollectionsQuery } from "../helpers/sanity/sanityQueries";
 import BannerSkeleton from "../components/BannerSkeleton";
 import CardSkeleton from "../components/CardSkeleton";
+import AsyncStorage, {
+  useAsyncStorage,
+} from "@react-native-async-storage/async-storage";
 
 const Home = () => {
   const { navigate } = useNavigation();
   const [collections, setCollections] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [globalRefresh, setGlobalRefresh] = useState(false);
 
   const fetchMainCollections = () => {
     setLoading(true);
     client
       .fetch(mainCollectionsQuery)
-      .then((result) => {
+      .then(async (result) => {
         setCollections(result);
+        await AsyncStorage.setItem("collections", JSON.stringify(result));
       })
       .finally(() => setLoading(false));
   };
 
+  const getCollectionsFromStorage = async () => {
+    setLoading(true);
+    const jsonData = await AsyncStorage.getItem("collections");
+    const data = jsonData === null ? null : JSON.parse(jsonData);
+    setCollections(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchMainCollections();
+    getCollectionsFromStorage();
+    if (collections === null) {
+      fetchMainCollections();
+    }
   }, []);
 
   return (
@@ -73,9 +89,9 @@ const Home = () => {
         </HStack>
       </Box>
       <Box style={styles.homeBody}>
-        <CuisineTypes />
-        <Banners />
-        {loading ? (
+        {/* <CuisineTypes />
+        <Banners /> */}
+        {/* {loading ? (
           <CardSkeleton orientation={"horizontal"} />
         ) : (
           <FeaturedRow
@@ -105,7 +121,7 @@ const Home = () => {
             subHeading={collections ? collections[2]?.subTitle : null}
             orientation={"horizontal"}
           />
-        )}
+        )} */}
       </Box>
     </ScrollView>
   );

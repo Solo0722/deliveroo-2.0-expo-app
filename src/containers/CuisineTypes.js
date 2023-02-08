@@ -6,6 +6,7 @@ import colors from "../constants/colors";
 import FoodCategorySkeleton from "../components/FoodCategorySkeleton";
 import { client } from "../helpers/sanity/sanityClient";
 import { foodCategoriesCollectionsQuery } from "../helpers/sanity/sanityQueries";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const CuisineTypes = () => {
   const [cuisineTypes, setCuisineTypes] = useState(null);
@@ -15,18 +16,30 @@ const CuisineTypes = () => {
     setLoading(true);
     client
       .fetch(foodCategoriesCollectionsQuery)
-      .then((result) => {
+      .then(async (result) => {
         setCuisineTypes(result);
+        await AsyncStorage.setItem("cuisineTypes", JSON.stringify(result));
       })
       .finally(() => setLoading(false));
   };
 
+  const getCuisineTypesFromStorage = async () => {
+    setLoading(true);
+    const jsonData = await AsyncStorage.getItem("cuisineTypes");
+    const data = jsonData === null ? null : JSON.parse(jsonData);
+    setCuisineTypes(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    fetchCuisineTypes();
+    getCuisineTypesFromStorage();
+    if (cuisineTypes === null) {
+      fetchCuisineTypes();
+    }
   }, []);
 
   const renderItem = ({ item }) => (
-    <Pressable android_ripple={{ color: "" }} style={styles.cuisineCard}>
+    <Pressable android_ripple={{ color: "#e5e7eb" }} style={styles.cuisineCard}>
       <Box height={"75%"}>
         <Image
           source={{ uri: item && item.imageUrl }}

@@ -4,6 +4,9 @@ export const MAINSTACKNAVIGATOR = "Main Stack Navigator";
 //screens
 export const HOME = "Home";
 export const BRAND = "Brand";
+export const PRODUCT = "Product";
+export const CART = "Cart";
+export const CHECKOUT = "Checkout";
 export const GOOGLEAUTH = "Google Auth";
 export const EMAILAUTH = "Email Auth";
 export const PHONEAUTH = "Phone Auth";
