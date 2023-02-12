@@ -1,38 +1,40 @@
-import {
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import React, { useEffect } from "react";
-import { Box, Button, Fab, Icon } from "native-base";
-import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
+import React, { useEffect, useContext } from "react";
+import { Box, Button } from "native-base";
 import MapView, { Marker } from "react-native-maps";
 import colors from "../constants/colors";
-import { useState } from "react";
 import * as Location from "expo-location";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { GlobalContext } from "../context/context";
 
-const LocationPicker = () => {
-  const [location, setLocation] = useState({
-    latitude: 6.6919603,
-    longitude: -1.550678,
-    latitudeDelta: 0.5525864898612127,
-    longitudeDelta: 0.7666236162185669,
-  });
+const LocationPicker = ({ navigation }) => {
+  const { userLocation, setUserLocation } = useContext(GlobalContext);
+
+  const getUserLocationFromStorage = async () => {
+    const jsonData = await AsyncStorage.getItem("user-location");
+    if (jsonData !== null) {
+      const data = JSON.parse(jsonData);
+      setUserLocation(data);
+    }
+  };
+
+  const getLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      return;
+    }
+
+    let { coords } = await Location.getCurrentPositionAsync({});
+    setUserLocation(coords);
+    await AsyncStorage.setItem("user-location", JSON.stringify(coords));
+  };
 
   useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        return;
-      }
-
-      let { coords } = await Location.getCurrentPositionAsync({});
-      setLocation(coords);
-    })();
+    getUserLocationFromStorage();
+    if (userLocation === null) {
+      getLocation();
+    }
   }, []);
-  console.log(location);
 
   return (
     <Box style={styles.container}>
@@ -40,35 +42,24 @@ const LocationPicker = () => {
         <MapView
           // provider={Platform.OS === "android" ? "google" : null}
           style={styles.map}
-          initialRegion={location}
+          initialRegion={userLocation}
           showsUserLocation={true}
           loadingEnabled={true}
           loadingIndicatorColor={`${colors.PRIMARY_COLOR}`}
-          onRegionChangeComplete={(region) => {
-            setLocation(region);
+          onRegionChangeComplete={async (region) => {
+            setUserLocation(region);
+            await AsyncStorage.setItem("user-location", JSON.stringify(region));
           }}
         >
           <Marker
             coordinate={{
-              latitude: location.latitude,
-              longitude: location.longitude,
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
             }}
             title={"My Location"}
             draggable
           />
         </MapView>
-        {/* <Fab
-          renderInPortal={false}
-          shadow={2}
-          bgColor={"white"}
-          icon={
-            <Icon
-              color="primary.400"
-              as={<Ionicons name="navigate-outline" />}
-              size="md"
-            />
-          }
-        /> */}
       </Box>
       <Box
         flex={0.1}
@@ -81,7 +72,7 @@ const LocationPicker = () => {
         alignItems={"center"}
         justifyContent={"center"}
       >
-        <Button borderRadius={"0"} w="full">
+        <Button borderRadius={"0"} w="full" onPress={() => navigation.goBack()}>
           Confirm location
         </Button>
       </Box>

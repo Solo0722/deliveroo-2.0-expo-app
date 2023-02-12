@@ -1,5 +1,5 @@
 import { Animated, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import BackButton from "../components/BackButton";
 import { useEffect } from "react";
 import {
@@ -11,16 +11,60 @@ import {
   Heading,
   Image,
   Pressable,
+  Actionsheet,
+  useDisclose,
 } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
-
-const fees = [
-  { title: "Subtotal", fee: 7.99 },
-  { title: "Delivery fee", fee: 2.99 },
-  { title: "Service fee", fee: 1.99 },
-];
+import { GlobalContext } from "../context/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { CHECKOUT, GOOGLEAUTH } from "../constants/routeNames";
 
 const Cart = ({ navigation }) => {
+  const { userCart, setUserCart, user } = useContext(GlobalContext);
+  let subTotal = parseFloat(0);
+  const { isOpen, onOpen, onClose } = useDisclose();
+
+  userCart.products.forEach((prod) => {
+    subTotal = subTotal + parseFloat(prod.price);
+  });
+
+  const fees = [
+    { title: "Subtotal", fee: subTotal.toFixed(2) },
+    { title: "Delivery fee", fee: userCart.deliveryBrand.deliveryFee },
+    { title: "Service fee", fee: 1.99 },
+  ];
+
+  const emptyAllProductsFromCart = async () => {
+    navigation.goBack();
+    let emptyCart = {
+      deliveryBrand: null,
+      products: [],
+    };
+    setUserCart(emptyCart);
+    await AsyncStorage.setItem("user-cart", JSON.stringify(emptyCart));
+  };
+
+  const removeItemFromCart = async (prod) => {
+    let updatedProducts = userCart.products.filter(
+      (product) => product.id !== prod.id
+    );
+    let updatedCart = { ...userCart, products: updatedProducts };
+    setUserCart(updatedCart);
+    await AsyncStorage.setItem("user-cart", JSON.stringify(updatedCart));
+
+    if (updatedProducts.length === 0) {
+      navigation.goBack();
+    }
+  };
+
+  const goToCheckout = () => {
+    if (user) {
+      navigation.navigate(CHECKOUT);
+    } else {
+      navigation.navigate(GOOGLEAUTH);
+    }
+  };
+
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "My Basket",
@@ -37,6 +81,7 @@ const Cart = ({ navigation }) => {
       },
       headerRight: () => (
         <IconButton
+          onPress={emptyAllProductsFromCart}
           icon={
             <Icon
               as={Ionicons}
@@ -66,7 +111,7 @@ const Cart = ({ navigation }) => {
       >
         <Box py={4}>
           <Heading fontWeight={"extrabold"} size={"sm"} fontSize={15} p={4}>
-            Delivery from Don Tacos
+            Delivery from {userCart.deliveryBrand.name}
           </Heading>
           <Box
             borderTopWidth={1}
@@ -94,7 +139,7 @@ const Cart = ({ navigation }) => {
                 borderRadius="full"
               />
               <Heading fontWeight={"hairline"} size={"sm"} fontSize={15}>
-                Deliver in 20 - 30 min
+                Deliver in {userCart.deliveryBrand.deliveryTime} min
               </Heading>
             </HStack>
             <Button variant={"ghost"}>Change</Button>
@@ -116,8 +161,12 @@ const Cart = ({ navigation }) => {
             flexDirection={"column"}
             bgColor={"white"}
           >
-            {[1, 2, 3, 4, 5].map((item, i) => (
-              <Pressable key={i} android_ripple={{ color: "#e5e7eb" }}>
+            {userCart.products.map((item, i) => (
+              <Pressable
+                key={i}
+                android_ripple={{ color: "#e5e7eb" }}
+                onPress={onOpen}
+              >
                 <Box
                   display={"flex"}
                   flexDirection={"row"}
@@ -134,12 +183,34 @@ const Cart = ({ navigation }) => {
                     1x
                   </Heading>
                   <Heading fontWeight={"hairline"} size={"xs"}>
-                    Spicy Chipotle Wings
+                    {item.name}
                   </Heading>
                   <Heading fontWeight={"hairline"} size={"xs"}>
-                    $3.99
+                    ${item.price}
                   </Heading>
                 </Box>
+                <Actionsheet isOpen={isOpen} onClose={onClose} borderRadius={0}>
+                  <Actionsheet.Content>
+                    <Box w="100%" p={4} justifyContent="center">
+                      <Button
+                        borderRadius={"0"}
+                        colorScheme={"danger"}
+                        onPress={() => {
+                          onClose();
+                          removeItemFromCart(item);
+                        }}
+                      >
+                        <Heading
+                          fontWeight={"hairline"}
+                          size={"xs"}
+                          color="white"
+                        >
+                          Remove {item.name}
+                        </Heading>
+                      </Button>
+                    </Box>
+                  </Actionsheet.Content>
+                </Actionsheet>
               </Pressable>
             ))}
           </Box>
@@ -202,10 +273,17 @@ const Cart = ({ navigation }) => {
             Total
           </Heading>
           <Heading fontWeight={"extrabold"} size={"sm"}>
-            $12.99
+            $
+            {(
+              subTotal +
+              parseFloat(1.99) +
+              parseFloat(userCart.deliveryBrand.deliveryFee)
+            ).toFixed(2)}
           </Heading>
         </Box>
-        <Button borderRadius={"0"}>Go to checkout</Button>
+        <Button borderRadius={"0"} onPress={goToCheckout}>
+          Go to checkout
+        </Button>
       </Box>
     </Animated.View>
   );

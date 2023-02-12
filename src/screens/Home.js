@@ -14,7 +14,7 @@ import {
 import colors from "../constants/colors";
 import Searchbar from "../components/Searchbar";
 import { Ionicons } from "@expo/vector-icons";
-import { FILTEROPTIONS } from "../constants/routeNames";
+import { FILTEROPTIONS, LOCATIONPICKER } from "../constants/routeNames";
 import { useNavigation } from "@react-navigation/native";
 import CuisineTypes from "../containers/CuisineTypes";
 import FeaturedRow from "../containers/FeaturedRow";
@@ -33,31 +33,33 @@ const Home = () => {
   const [loading, setLoading] = useState(false);
   const [globalRefresh, setGlobalRefresh] = useState(false);
 
-  const fetchMainCollections = () => {
-    setLoading(true);
-    client
-      .fetch(mainCollectionsQuery)
-      .then(async (result) => {
-        setCollections(result);
-        await AsyncStorage.setItem("collections", JSON.stringify(result));
-      })
-      .finally(() => setLoading(false));
-  };
+  // const fetchMainCollections = () => {
+  //   setLoading(true);
+  //   client
+  //     .fetch(mainCollectionsQuery)
+  //     .then(async (result) => {
+  //       setCollections(result);
+  //       await AsyncStorage.setItem("collections", JSON.stringify(result));
+  //     })
+  //     .finally(() => setLoading(false));
+  // };
 
-  const getCollectionsFromStorage = async () => {
-    setLoading(true);
-    const jsonData = await AsyncStorage.getItem("collections");
-    const data = jsonData === null ? null : JSON.parse(jsonData);
-    setCollections(data);
-    setLoading(false);
-  };
+  // const getCollectionsFromStorage = async () => {
+  //   setLoading(true);
+  //   const jsonData = await AsyncStorage.getItem("collections");
+  //   const data = jsonData === null ? null : JSON.parse(jsonData);
+  //   setCollections(data);
+  //   setLoading(false);
+  // };
 
-  useEffect(() => {
-    getCollectionsFromStorage();
-    if (collections === null) {
-      fetchMainCollections();
-    }
-  }, []);
+  // useEffect(() => navigate(LOCATIONPICKER), []);
+
+  // useEffect(() => {
+  //   getCollectionsFromStorage();
+  //   if (collections === null) {
+  //     fetchMainCollections();
+  //   }
+  // }, []);
 
   return (
     <ScrollView
@@ -90,8 +92,8 @@ const Home = () => {
       </Box>
       <Box style={styles.homeBody}>
         {/* <CuisineTypes />
-        <Banners /> */}
-        {/* {loading ? (
+        <Banners />
+        {loading ? (
           <CardSkeleton orientation={"horizontal"} />
         ) : (
           <FeaturedRow

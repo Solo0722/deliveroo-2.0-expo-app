@@ -7,6 +7,7 @@ import { setCustomText } from "react-native-global-props";
 import { theme } from "./src/constants/nativeBaseTheme";
 import { StatusBar } from "expo-status-bar";
 import MainStackNavigator from "./src/navigations/MainStackNavigator";
+import GlobalProvider from "./src/context/context";
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -34,9 +35,11 @@ export default function App() {
 
   return (
     <NativeBaseProvider theme={theme}>
-      <NavigationContainer onReady={onLayoutRootView}>
-        <MainStackNavigator />
-      </NavigationContainer>
+      <GlobalProvider>
+        <NavigationContainer onReady={onLayoutRootView}>
+          <MainStackNavigator />
+        </NavigationContainer>
+      </GlobalProvider>
     </NativeBaseProvider>
   );
 }

@@ -117,7 +117,7 @@ const MainStackNavigator = ({ navigation }) => {
                   variant={"subtle"}
                   colorScheme="coolGray"
                   // backgroundColor={"coolGray.100"}
-                  onPress={() => navigate(CHECKOUT)}
+                  onPress={() => navigate(GOOGLEAUTH)}
                 />
               </HStack>
               <Actionsheet isOpen={isOpen} onClose={onClose} borderRadius={0}>

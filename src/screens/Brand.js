@@ -1,9 +1,8 @@
 import { StyleSheet, Text } from "react-native";
-import React from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import {
   Box,
   Divider,
-  FlatList,
   Heading,
   HStack,
   Icon,
@@ -12,19 +11,42 @@ import {
   VStack,
   View,
   IconButton,
+  Button,
 } from "native-base";
 import { Ionicons, Entypo } from "@expo/vector-icons";
 import { remarks } from "../constants/general";
 import colors from "../constants/colors";
 import BackButton from "../components/BackButton";
-import { useEffect } from "react";
-import { useState } from "react";
 import { Animated } from "react-native";
-import { useRef } from "react";
-import { PRODUCT } from "../constants/routeNames";
+import { CART, PRODUCT } from "../constants/routeNames";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { GlobalContext } from "../context/context";
 
 const Brand = ({ navigation, route }) => {
   const { brand } = route.params;
+  const { userCart, setUserCart } = useContext(GlobalContext);
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  const getUserCartFromStorage = async () => {
+    const jsonData = await AsyncStorage.getItem("user-cart");
+    if (jsonData !== null) {
+      const data = JSON.parse(jsonData);
+      setUserCart(data);
+    }
+  };
+
+  useEffect(() => {
+    getUserCartFromStorage();
+  }, []);
+
+  useEffect(() => {
+    let sum = 0;
+    userCart.products.forEach((prod) => {
+      sum = sum + parseFloat(prod.price);
+    });
+    setTotalAmount(sum.toFixed(2));
+  }, [userCart]);
+
   const yOffset = useRef(new Animated.Value(0)).current;
   const headerOpacity = yOffset.interpolate({
     inputRange: [0, 200],
@@ -65,7 +87,12 @@ const Brand = ({ navigation, route }) => {
       py={4}
       android_ripple={{ color: "#e5e7eb" }}
       style={styles.card}
-      onPress={() => navigation.navigate(PRODUCT, { product: item })}
+      onPress={() =>
+        navigation.navigate(PRODUCT, {
+          product: item,
+          brand,
+        })
+      }
     >
       <HStack space={2} width={"100%"}>
         <VStack space={2} width={"68%"}>
@@ -107,7 +134,7 @@ const Brand = ({ navigation, route }) => {
   );
 
   return (
-    <Box>
+    <Animated.View flex={1}>
       <Animated.FlatList
         overScrollMode="never"
         showsVerticalScrollIndicator={false}
@@ -283,7 +310,42 @@ const Brand = ({ navigation, route }) => {
         data={brand.products || []}
         renderItem={renderItem}
       />
-    </Box>
+
+      <Box
+        bottom={0}
+        marginTop="auto"
+        p={5}
+        bgColor={"white"}
+        w={"full"}
+        display={`${userCart.products.length > 0 ? "flex" : "none"}`}
+        shadow={4}
+      >
+        <Pressable
+          android_ripple={{
+            color: "#e5e7eb",
+          }}
+          bgColor={"primary.500"}
+          w={"full"}
+          display={"flex"}
+          flexDirection={"row"}
+          justifyContent={"space-between"}
+          alignItems={"center"}
+          p={2}
+          borderRadius={"4"}
+          onPress={() => navigation.navigate(CART)}
+        >
+          <Button variant={"solid"} color={"white"}>
+            {userCart.products.length}
+          </Button>
+          <Heading color={"white"} fontWeight={"extrabold"} size={"sm"}>
+            View basket
+          </Heading>
+          <Heading color={"white"} fontWeight={"extrabold"} size={"sm"}>
+            ${totalAmount}
+          </Heading>
+        </Pressable>
+      </Box>
+    </Animated.View>
   );
 };
 

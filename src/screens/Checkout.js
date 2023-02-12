@@ -1,5 +1,5 @@
 import { Animated, StyleSheet, Text, View } from "react-native";
-import React from "react";
+import React, { useContext, useState } from "react";
 import {
   IconButton,
   Icon,
@@ -12,6 +12,7 @@ import {
   Checkbox,
 } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
+import { client } from "../helpers/sanity/sanityClient";
 
 const payments = [
   {
@@ -40,7 +41,34 @@ const payments = [
   },
 ];
 
-const Checkout = () => {
+const Checkout = ({ navigation }) => {
+  const { userCart, user, userLocation } = useContext(GlobalContext);
+  const [loading, setLoading] = useState();
+
+  const createCheckoutToken = () => {
+    setLoading(true);
+    const doc = {
+      _type: "checkout",
+      checkoutCart: userCart,
+      paymentMethod: "",
+      ownerLocation: userLocation,
+      owner: {
+        _type: "user",
+        _ref: user._id,
+      },
+    };
+
+    client
+      .createOrReplace(doc)
+      .then(() => {
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => navigation.navigate());
+  };
+
   return (
     <Animated.View flex={1}>
       <Animated.ScrollView
@@ -80,9 +108,6 @@ const Checkout = () => {
                 Deliver in 20 - 30 min
               </Heading>
             </HStack>
-            <Button variant={"ghost"} isDisabled>
-              Change
-            </Button>
           </Box>
           <Heading
             fontWeight={"extrabold"}
@@ -196,7 +221,9 @@ const Checkout = () => {
             $12.99
           </Heading>
         </Box>
-        <Button borderRadius={"0"}>Pay</Button>
+        <Button borderRadius={"0"} isLoading={loading}>
+          Pay
+        </Button>
       </Box>
     </Animated.View>
   );

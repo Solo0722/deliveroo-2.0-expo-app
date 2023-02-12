@@ -1,5 +1,5 @@
 import { Animated, StyleSheet, Text } from "react-native";
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState, useContext } from "react";
 import {
   Box,
   Divider,
@@ -19,9 +19,47 @@ import { Ionicons } from "@expo/vector-icons";
 import colors from "../constants/colors";
 import BackButton from "../components/BackButton";
 import { remarks } from "../constants/general";
+import { GlobalContext } from "../context/context";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Product = ({ navigation, route }) => {
-  const { product } = route.params;
+  const { product, brand } = route.params;
+  const [productCount, setProductCount] = useState(1);
+  const [productTotalPrice, setProductTotalPrice] = useState(
+    parseFloat(product.price)
+  );
+  const { userCart, setUserCart } = useContext(GlobalContext);
+
+  const addProductToCart = async (item, itemCount) => {
+    let cart = [];
+
+    if (userCart.deliveryBrand) {
+      if (brand.name === userCart.deliveryBrand.name) {
+        for (let i = 0; i < itemCount; i++) {
+          cart.push(item);
+        }
+        let updatedProds = [...userCart.products, ...cart];
+        let ct = { ...userCart, products: updatedProds };
+        setUserCart({ ...userCart, products: updatedProds });
+        await AsyncStorage.setItem("user-cart", JSON.stringify(ct));
+      } else {
+        for (let i = 0; i < itemCount; i++) {
+          cart.push(item);
+        }
+        let ct = { deliveryBrand: brand, products: cart };
+        setUserCart({ deliveryBrand: brand, products: cart });
+        await AsyncStorage.setItem("user-cart", JSON.stringify(ct));
+      }
+    } else {
+      for (let i = 0; i < itemCount; i++) {
+        cart.push(item);
+      }
+      let ct = { deliveryBrand: brand, products: cart };
+      setUserCart({ deliveryBrand: brand, products: cart });
+      await AsyncStorage.setItem("user-cart", JSON.stringify(ct));
+    }
+    navigation.goBack();
+  };
 
   const yOffset = useRef(new Animated.Value(0)).current;
   const headerOpacity = yOffset.interpolate({
@@ -56,6 +94,19 @@ const Product = ({ navigation, route }) => {
       headerTransparent: true,
     });
   }, [headerOpacity, navigation]);
+
+  const handleIncreaseProduct = () => {
+    setProductCount(productCount + 1);
+
+    let total = parseFloat(productTotalPrice) + parseFloat(product.price);
+    setProductTotalPrice(total.toFixed(2));
+  };
+  const handleDecreaseProduct = () => {
+    setProductCount(productCount - 1);
+
+    let total = parseFloat(productTotalPrice) - parseFloat(product.price);
+    setProductTotalPrice(total.toFixed(2));
+  };
 
   return (
     <Animated.View flex={1}>
@@ -186,6 +237,8 @@ const Product = ({ navigation, route }) => {
         >
           <HStack space={6}>
             <IconButton
+              onPress={handleDecreaseProduct}
+              isDisabled={productCount < 2}
               icon={
                 <Icon
                   as={Ionicons}
@@ -204,9 +257,10 @@ const Product = ({ navigation, route }) => {
               backgroundColor={"white"}
             />
             <Heading fontWeight={"extrabold"} size={"md"} mt={2}>
-              4
+              {productCount}
             </Heading>
             <IconButton
+              onPress={handleIncreaseProduct}
               icon={
                 <Icon
                   as={Ionicons}
@@ -226,9 +280,12 @@ const Product = ({ navigation, route }) => {
             />
           </HStack>
         </Box>
-        <Button borderRadius={"0"}>
+        <Button
+          borderRadius={"0"}
+          onPress={() => addProductToCart(product, productCount)}
+        >
           <Heading fontWeight={"hairline"} size={"xs"} color="white">
-            Add for ${product.price}
+            Add for ${productTotalPrice}
           </Heading>
         </Button>
       </Box>
