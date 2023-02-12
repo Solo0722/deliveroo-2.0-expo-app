@@ -1,13 +1,14 @@
-// export const userQuery = (username, password) => {
-//   const query = `*[_type == 'user' && username == '${username}' && password == '${password}']`;
-//   return query;
-// };
+export const userQuery = (email, password) => {
+  const query = `*[_type == 'user' && email == '${email}' && password == '${password}']`;
+  return query;
+};
 
 export const mainCollectionsQuery = `*[_type == 'collection' && !isFoodCategory]{
     title,
     subTitle,
     brands[] -> {
         
+        _id,
             name,
         description,
         rating,
@@ -31,7 +32,7 @@ export const foodCategoriesCollectionsQuery = `*[_type == 'collection' && isFood
     subTitle,
     imageUrl,
     brands[] -> {
-        
+        _id,
             name,
         description,
         rating,

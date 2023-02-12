@@ -1,5 +1,5 @@
 import { Animated, StyleSheet, Text, View } from "react-native";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -20,9 +20,14 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import BackButton from "../components/BackButton";
 import { client } from "../helpers/sanity/sanityClient";
+import { userQuery } from "../helpers/sanity/sanityQueries";
+import { GlobalContext } from "../context/context";
+import uuid from "react-native-uuid";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const GoogleAuth = ({ navigation }) => {
   const toast = useToast();
+  const { user, setUser } = useContext(GlobalContext);
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -73,25 +78,45 @@ const GoogleAuth = ({ navigation }) => {
     return true;
   };
 
+  const handleSignUp = () => {
+    const doc = {
+      _id: uuid.v4(),
+      _type: "user",
+      ...formData,
+    };
+
+    client
+      .createIfNotExists(doc)
+      .then(async (result) => {
+        setUser(result);
+        setLoading(false);
+        console.log(result);
+        await AsyncStorage.setItem("user", JSON.stringify(result));
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .finally(() => navigation.goBack());
+  };
+  const handleSignIn = () => {
+    const q = userQuery(formData.email.trim(), formData.password.trim());
+    client
+      .fetch(q)
+      .then(async (result) => {
+        setUser(result[0]);
+        setLoading(false);
+        console.log(result);
+        await AsyncStorage.setItem("user", JSON.stringify(result[0]));
+      })
+      .catch((err) => console.log(err))
+      .finally(() => navigation.goBack());
+  };
+
   const handleFormSubmit = () => {
     let validate = isSignUp ? signUpValidation() : signInValidation();
     if (validate) {
       setLoading(true);
-      // if (isSignUp) {
-      //   const doc = {
-      //     _type: "user",
-      //     ...formData,
-      //   };
-
-      //   client
-      //     .createIfNotExists(doc)
-      //     .then(() => {
-      //       setLoading(false);
-      //     })
-      //     .catch((err) => console.log(err))
-      //     .finally(() => navigation.goBack());
-      // } else {
-      // }
+      isSignUp ? handleSignUp() : handleSignIn();
     } else {
       toast.show({
         description: "Invalid details! Try again",

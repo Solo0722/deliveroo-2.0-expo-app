@@ -18,7 +18,14 @@ const GlobalProvider = ({ children }) => {
 
   return (
     <GlobalContext.Provider
-      value={{ userLocation, setUserLocation, userCart, setUserCart }}
+      value={{
+        userLocation,
+        setUserLocation,
+        userCart,
+        setUserCart,
+        user,
+        setUser,
+      }}
     >
       {children}
     </GlobalContext.Provider>

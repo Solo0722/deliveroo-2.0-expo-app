@@ -35,6 +35,8 @@ const Brand = ({ navigation, route }) => {
     }
   };
 
+  console.log(userCart);
+
   useEffect(() => {
     getUserCartFromStorage();
   }, []);

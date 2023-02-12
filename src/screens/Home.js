@@ -1,5 +1,5 @@
 import { RefreshControl, StyleSheet, Text } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { globalStyles } from "../constants/globalStyles";
 import {
   Actionsheet,
@@ -14,7 +14,11 @@ import {
 import colors from "../constants/colors";
 import Searchbar from "../components/Searchbar";
 import { Ionicons } from "@expo/vector-icons";
-import { FILTEROPTIONS, LOCATIONPICKER } from "../constants/routeNames";
+import {
+  FILTEROPTIONS,
+  LOCATIONPICKER,
+  ORDERTRACKER,
+} from "../constants/routeNames";
 import { useNavigation } from "@react-navigation/native";
 import CuisineTypes from "../containers/CuisineTypes";
 import FeaturedRow from "../containers/FeaturedRow";
@@ -26,40 +30,48 @@ import CardSkeleton from "../components/CardSkeleton";
 import AsyncStorage, {
   useAsyncStorage,
 } from "@react-native-async-storage/async-storage";
+import { GlobalContext } from "../context/context";
 
 const Home = () => {
   const { navigate } = useNavigation();
   const [collections, setCollections] = useState(null);
   const [loading, setLoading] = useState(false);
   const [globalRefresh, setGlobalRefresh] = useState(false);
+  const { setUser, user } = useContext(GlobalContext);
 
-  // const fetchMainCollections = () => {
-  //   setLoading(true);
-  //   client
-  //     .fetch(mainCollectionsQuery)
-  //     .then(async (result) => {
-  //       setCollections(result);
-  //       await AsyncStorage.setItem("collections", JSON.stringify(result));
-  //     })
-  //     .finally(() => setLoading(false));
-  // };
+  const getCurrentUser = async () => {
+    const jsonData = await AsyncStorage.getItem("user");
+    const data = jsonData === null ? null : JSON.parse(jsonData);
+    setUser(data);
+  };
 
-  // const getCollectionsFromStorage = async () => {
-  //   setLoading(true);
-  //   const jsonData = await AsyncStorage.getItem("collections");
-  //   const data = jsonData === null ? null : JSON.parse(jsonData);
-  //   setCollections(data);
-  //   setLoading(false);
-  // };
+  const fetchMainCollections = () => {
+    setLoading(true);
+    client
+      .fetch(mainCollectionsQuery)
+      .then(async (result) => {
+        setCollections(result);
+        await AsyncStorage.setItem("collections", JSON.stringify(result));
+      })
+      .finally(() => setLoading(false));
+  };
 
-  // useEffect(() => navigate(LOCATIONPICKER), []);
+  const getCollectionsFromStorage = async () => {
+    setLoading(true);
+    const jsonData = await AsyncStorage.getItem("collections");
+    const data = jsonData === null ? null : JSON.parse(jsonData);
+    setCollections(data);
+    setLoading(false);
+  };
 
-  // useEffect(() => {
-  //   getCollectionsFromStorage();
-  //   if (collections === null) {
-  //     fetchMainCollections();
-  //   }
-  // }, []);
+  useEffect(() => {
+    getCurrentUser();
+    getCollectionsFromStorage();
+    if (collections === null) {
+      fetchMainCollections();
+    }
+    navigate(LOCATIONPICKER);
+  }, []);
 
   return (
     <ScrollView
@@ -91,7 +103,7 @@ const Home = () => {
         </HStack>
       </Box>
       <Box style={styles.homeBody}>
-        {/* <CuisineTypes />
+        <CuisineTypes />
         <Banners />
         {loading ? (
           <CardSkeleton orientation={"horizontal"} />
@@ -123,7 +135,7 @@ const Home = () => {
             subHeading={collections ? collections[2]?.subTitle : null}
             orientation={"horizontal"}
           />
-        )} */}
+        )}
       </Box>
     </ScrollView>
   );

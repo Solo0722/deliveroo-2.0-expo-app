@@ -4,7 +4,7 @@ import { Center, Icon, IconButton } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 
-const BackButton = ({ styles, iconName }) => {
+const BackButton = ({ styles, iconName, handlePress }) => {
   const { goBack } = useNavigation();
 
   return (
@@ -23,7 +23,7 @@ const BackButton = ({ styles, iconName }) => {
       }}
       borderRadius={"full"}
       backgroundColor={styles?.backgroundColor || "white"}
-      onPress={() => goBack()}
+      onPress={handlePress ? handlePress : () => goBack()}
     />
   );
 };

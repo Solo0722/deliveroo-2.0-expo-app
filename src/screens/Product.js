@@ -34,7 +34,7 @@ const Product = ({ navigation, route }) => {
     let cart = [];
 
     if (userCart.deliveryBrand) {
-      if (brand.name === userCart.deliveryBrand.name) {
+      if (brand.name === userCart.deliveryBrand?.name) {
         for (let i = 0; i < itemCount; i++) {
           cart.push(item);
         }

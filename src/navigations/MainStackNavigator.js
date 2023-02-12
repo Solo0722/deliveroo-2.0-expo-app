@@ -13,7 +13,9 @@ import {
   HOME,
   LOCATIONPICKER,
   MAINSEARCH,
+  ORDERTRACKER,
   PRODUCT,
+  SETTINGS,
 } from "../constants/routeNames";
 import Home from "../screens/Home";
 import colors from "../constants/colors";
@@ -40,12 +42,17 @@ import Brand from "../screens/Brand";
 import Product from "../screens/Product";
 import Cart from "../screens/Cart";
 import Checkout from "../screens/Checkout";
+import { useContext } from "react";
+import { GlobalContext } from "../context/context";
+import Settings from "../screens/Settings";
+import OrderTracker from "../screens/OrderTracker";
 
 const MainStack = createStackNavigator();
 
 const MainStackNavigator = ({ navigation }) => {
   const { isOpen, onOpen, onClose } = useDisclose();
   const { navigate } = useNavigation();
+  const { user } = useContext(GlobalContext);
 
   return (
     <MainStack.Navigator
@@ -117,7 +124,7 @@ const MainStackNavigator = ({ navigation }) => {
                   variant={"subtle"}
                   colorScheme="coolGray"
                   // backgroundColor={"coolGray.100"}
-                  onPress={() => navigate(GOOGLEAUTH)}
+                  onPress={() => navigate(user ? SETTINGS : GOOGLEAUTH)}
                 />
               </HStack>
               <Actionsheet isOpen={isOpen} onClose={onClose} borderRadius={0}>
@@ -193,6 +200,8 @@ const MainStackNavigator = ({ navigation }) => {
           ),
         }}
       />
+      <MainStack.Screen name={SETTINGS} component={Settings} />
+      <MainStack.Screen name={ORDERTRACKER} component={OrderTracker} />
       <MainStack.Screen name={BRAND} component={Brand} />
       <MainStack.Screen name={PRODUCT} component={Product} />
       <MainStack.Screen name={CART} component={Cart} />

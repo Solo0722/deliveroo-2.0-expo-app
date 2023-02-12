@@ -30,7 +30,7 @@ const Cart = ({ navigation }) => {
 
   const fees = [
     { title: "Subtotal", fee: subTotal.toFixed(2) },
-    { title: "Delivery fee", fee: userCart.deliveryBrand.deliveryFee },
+    { title: "Delivery fee", fee: userCart.deliveryBrand?.deliveryFee },
     { title: "Service fee", fee: 1.99 },
   ];
 
@@ -111,7 +111,7 @@ const Cart = ({ navigation }) => {
       >
         <Box py={4}>
           <Heading fontWeight={"extrabold"} size={"sm"} fontSize={15} p={4}>
-            Delivery from {userCart.deliveryBrand.name}
+            Delivery from {userCart.deliveryBrand?.name}
           </Heading>
           <Box
             borderTopWidth={1}
@@ -139,7 +139,7 @@ const Cart = ({ navigation }) => {
                 borderRadius="full"
               />
               <Heading fontWeight={"hairline"} size={"sm"} fontSize={15}>
-                Deliver in {userCart.deliveryBrand.deliveryTime} min
+                Deliver in {userCart.deliveryBrand?.deliveryTime} min
               </Heading>
             </HStack>
             <Button variant={"ghost"}>Change</Button>
@@ -277,7 +277,7 @@ const Cart = ({ navigation }) => {
             {(
               subTotal +
               parseFloat(1.99) +
-              parseFloat(userCart.deliveryBrand.deliveryFee)
+              parseFloat(userCart.deliveryBrand?.deliveryFee)
             ).toFixed(2)}
           </Heading>
         </Box>

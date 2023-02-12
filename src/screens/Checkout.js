@@ -13,6 +13,10 @@ import {
 } from "native-base";
 import { Ionicons } from "@expo/vector-icons";
 import { client } from "../helpers/sanity/sanityClient";
+import uuid from "react-native-uuid";
+import { ORDERTRACKER } from "../constants/routeNames";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { GlobalContext } from "../context/context";
 
 const payments = [
   {
@@ -42,16 +46,27 @@ const payments = [
 ];
 
 const Checkout = ({ navigation }) => {
-  const { userCart, user, userLocation } = useContext(GlobalContext);
+  const { userCart, setUserCart, user, userLocation } =
+    useContext(GlobalContext);
   const [loading, setLoading] = useState();
 
   const createCheckoutToken = () => {
     setLoading(true);
     const doc = {
+      _id: uuid.v4(),
       _type: "checkout",
-      checkoutCart: userCart,
-      paymentMethod: "",
-      ownerLocation: userLocation,
+      checkoutCart: {
+        deliveryBrand: {
+          _type: "brand",
+          _ref: userCart.deliveryBrand?._id,
+        },
+        products: userCart.products,
+      },
+      paymentMethod: "PayPal",
+      ownerLocation: {
+        latitude: userLocation.latitude.toString(),
+        longitude: userLocation.longitude.toString(),
+      },
       owner: {
         _type: "user",
         _ref: user._id,
@@ -60,13 +75,22 @@ const Checkout = ({ navigation }) => {
 
     client
       .createOrReplace(doc)
-      .then(() => {
+      .then((result) => {
         setLoading(false);
+        console.log(result);
       })
       .catch((err) => {
         console.log(err);
       })
-      .finally(() => navigation.navigate());
+      .finally(async () => {
+        navigation.navigate(ORDERTRACKER);
+        let emptyCart = {
+          deliveryBrand: null,
+          products: [],
+        };
+        setUserCart(emptyCart);
+        await AsyncStorage.setItem("user-cart", JSON.stringify(emptyCart));
+      });
   };
 
   return (
@@ -221,7 +245,11 @@ const Checkout = ({ navigation }) => {
             $12.99
           </Heading>
         </Box>
-        <Button borderRadius={"0"} isLoading={loading}>
+        <Button
+          borderRadius={"0"}
+          isLoading={loading}
+          onPress={createCheckoutToken}
+        >
           Pay
         </Button>
       </Box>
